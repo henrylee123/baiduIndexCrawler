@@ -8,10 +8,24 @@ ATTENTION！！
 -----------------
 ATTENTION！！
 '''
-download_days = [10, 22]
+# auto run  自动运行
+download_days = [10, 25]
 
+#run by hand 手动运行
+run_date = {
+    "start_date": "2018-10-01",
+    "end_date": "2019-2-25"
+}
 
+# 日志conf
+log_conf = {
+    "level": "DEBUG",
+    "filename": "output.log",
+    "datefmt": "%Y/%m/%d %H:%M:%S",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(lineno)d - %(module)s - %(message)s"
+}
 
+# crawler conf
 conf = {
     "missing_date_json_path": "missing_date.json",
     "area_code": {
@@ -67,16 +81,11 @@ conf = {
 
     # Oracle conn info
     "conn": {
+        "table_name": "BDIDXINDEXES",
+        "db_type": "oracle+cx_oracle",
         "user": "hiibase",
         "password": "hiibase",
         "dsn": "200.100.100.69:1521/dgr"
     },
-    "insert_sql": "insert into bdidxIndexes(FIDXID,FCRAWLID,FAREANM,FKEYWORD,FIDXDTKEY,FIDXVAL) values (:1,:2,:3,:4,:5,:6)"
-}
-
-log_conf = {
-    "level": "DEBUG",
-    "filename": "output.log",
-    "datefmt": "%Y/%m/%d %H:%M:%S",
-    "format": "%(asctime)s - %(name)s - %(levelname)s - %(lineno)d - %(module)s - %(message)s"
+    "insert_sql": "insert into BDIDXINDEXES(FIDXID,FCRAWLID,FAREANM,FKEYWORD,FIDXDTKEY,FIDXVAL) values (:1,:2,:3,:4,:5,:6)"
 }

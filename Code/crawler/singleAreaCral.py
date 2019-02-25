@@ -16,11 +16,11 @@ import requests
 import time
 import js2py
 from selenium import webdriver
-from crawler.myLog import Add_Log, method_add_log
+from crawler.myLog import Add_Log
 from .myDate import MyDateTime
 
 
-@Add_Log(method_add_log)
+@Add_Log(__name__)
 class Login():
     def __init__(self, user, psw, chrome_driver_path, login_url):
         self.__user = user
@@ -72,7 +72,7 @@ class Login():
                 self.c.find_element_by_xpath('//*[@id="home"]/div[2]/div[2]/div/div[1]/div/div[2]/div/span/span').click()
 
 
-@Add_Log(method_add_log)
+@Add_Log(__name__)
 class SingleAreaCral():
     """
     每一次循环抛出一个词全时段的已解密热搜值

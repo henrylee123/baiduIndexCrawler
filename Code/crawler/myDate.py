@@ -1,6 +1,8 @@
 import datetime
+from .myLog import Add_Log
 
 
+@Add_Log(__name__)
 class MyDateTime():
     def __init__(self):
         self.__today = datetime.date.today()
@@ -21,8 +23,8 @@ class MyDateTime():
             # 获取起始时间
             start_date = self.__get_date_of_month(download_days[idx  - 1], month, year)
             # 返回所有日期节点
-            return MyDateTime.get_date_during(start_date, today)
-        else: return None
+            return start_date, today
+        else: return None, None
 
     def __get_date_of_month(self, day_num, month_num, year_num):
         if day_num > 0:

@@ -5,12 +5,14 @@
 '''
 import cx_Oracle
 import uuid
+from .myLog import Add_Log
 
 
+@Add_Log(__name__)
 class OracleStore():
 
-    def __init__(self, conn):
-        self.__conn = cx_Oracle.connect(**conn)
+    def __init__(self, user, password, dsn, *l, **d):
+        self.__conn = cx_Oracle.connect(user, password, dsn)
         self.__cur = cx_Oracle.Cursor(self.__conn)
 
 

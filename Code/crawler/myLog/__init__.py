@@ -1,34 +1,50 @@
+
 import logging
+from functools import wraps
+from setting import  log_conf
+import copy
+
+
+def defalut_log_decorator(myloger):
+    def decorater(f):
+        def add_log_method(*l, **d):
+            myloger.info('start ' + f.__name__)
+            try:
+                result = f(*l, **d)
+                return result
+            except Exception as e:
+                myloger.error(f.__name__ + str(e))
+                raise e
+            finally:
+                myloger.info('end ' + f.__name__)
+
+        return add_log_method
+    return decorater
 
 
 class MyLoger():
-    def __new__(cls, conf: dict, file_name: str=__name__):
+    def __new__(cls, conf: dict, file_name: str):
         """
         :param file_name: input __name__
         """
         level = getattr(logging, conf.get('level', 'DEBUG'))
-        conf['level'] = level
-        logging.basicConfig(**conf)
+        tmp_conf = copy.deepcopy(conf)
+        tmp_conf['level'] = level
+        logging.basicConfig(**tmp_conf)
         return logging.getLogger(file_name)
 
 
-def method_add_log(f):
-    def add_log_method(*l, **d):
-        try:
-            result = f(*l, **d)
-            return result
-        except Exception as e:
-            print(str(e))
-            raise ValueError
-    return add_log_method
-
-
-def Add_Log(log_decorator):
+# 类log装饰器
+def Add_Log(file_name, method_decorator=None, conf=log_conf):
     """
     一个类装饰器(它用来给类的所有成员函数添加一个日志装饰器)
     装上它的类有某一个方法出错后都能执行异常处理并输出日志到文本中
-    :param log_decorator: 准备应用于类中所有方法的日志装饰器
+    :param method_decorator: 准备应用于类中所有方法的日志装饰器
     """
+    myloger = MyLoger(conf, file_name)
+    if method_decorator is None:
+        method_decorator = defalut_log_decorator
+
     def Decorator(obj):
         def decorator_method_connector(self, decorator):
             """
@@ -45,7 +61,7 @@ def Add_Log(log_decorator):
                         well_done_method.__name__ = property_name
                         setattr(self, property_name, well_done_method)
 
-        def rebuild__init__(decorator=log_decorator,
+        def rebuild__init__(decorator=method_decorator(myloger),
                             handle_decorator=decorator_method_connector,
                             origin__init__=obj.__init__):
             """
@@ -66,14 +82,3 @@ def Add_Log(log_decorator):
         rebuild__init__()
         return obj
     return Decorator
-
-#
-# logger = MyLoger(__name__)
-# logger.error('This is a log info')
-# logger.debug('Debugging')
-# logger.warning('Warning exists')
-# logger.info('Finish')
-# logger.info('This is a log info')
-# logger.debug('Debugging')
-# logger.warning('Warning exists')
-# logger.info('Finish')
