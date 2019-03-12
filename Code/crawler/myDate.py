@@ -27,6 +27,11 @@ class MyDateTime():
         else: return None, None
 
     def __get_date_of_month(self, day_num, month_num, year_num):
+        """
+        输入可谓负数的day_num，返回日期：
+            input： -1 ,2, 2018
+            output：2018-2-28
+        """
         if day_num > 0:
             return  datetime.date(
                 year_num, month_num , day_num).strftime('%Y-%m-%d')
@@ -50,3 +55,31 @@ class MyDateTime():
             date_list.append(date.strftime('%Y-%m-%d'))
             date = date + datetime.timedelta(1)
         return date_list
+
+    @classmethod
+    def split_over_one_year(cls, start_date, end_date_str):
+        date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d')
+        if  (end_date - date).days > 360:
+            tmp_start_date = date
+            tmp_end_date = date
+            tmp_end_date = cls.add_one_year(tmp_end_date)
+            while tmp_end_date < end_date:
+                yield datetime.datetime.strftime(tmp_start_date, '%Y-%m-%d'), \
+                      datetime.datetime.strftime(tmp_end_date - datetime.timedelta(1), '%Y-%m-%d')
+                # 最后一个
+                tmp_start_date = cls.add_one_year(tmp_start_date)
+                tmp_end_date = cls.add_one_year(tmp_end_date)
+
+            yield datetime.datetime.strftime(tmp_start_date - datetime.timedelta(1), '%Y-%m-%d'), end_date_str
+        else :
+            yield start_date, end_date
+
+    @classmethod
+    def add_one_year(cls, dt):
+        return datetime.datetime(year=(dt.year+1), month=dt.month, day=dt.day, )
+
+# only for test
+if __name__ == '__main__':
+    for i in MyDateTime.split_over_one_year('2011-08-01', '2018-08-08'):
+        print(i)

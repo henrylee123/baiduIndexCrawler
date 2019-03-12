@@ -16,6 +16,7 @@ import requests
 import time
 import js2py
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from crawler.myLog import Add_Log
 from .myDate import MyDateTime
 
@@ -31,7 +32,10 @@ class Login():
 
     def get_cookie(self):
         # open chromedriver & requests
-        self.c = webdriver.Chrome(self.chrome_driver_path)
+        chrome_options = Options()
+        chrome_options.add_argument('--headless')
+        self.c = webdriver.Chrome(executable_path =self.chrome_driver_path,
+                                  chrome_options=chrome_options)
         self.c.get(self.login_url)
         time.sleep(3)
         # input user pwd and update

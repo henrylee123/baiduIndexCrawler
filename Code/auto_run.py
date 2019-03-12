@@ -38,7 +38,6 @@ class BaiduIndexSpider():
                              timeout, word_list_split_len, key_word_list)
         self.login = Login(user, psw, chrome_driver_path, login_url)
         self.store = OracleStore(**conn)
-        super().__init__()
         # 建表
         BaiduIndexSpider.create_table(**conn)
         # 运行
@@ -71,28 +70,29 @@ class BaiduIndexSpider():
         Base.metadata.create_all(engine)
 
     def start_cral(self):
-        self.single_area_cral.cookie = 'BDUSS=mdXR3hiLVk1S0tQY2FmeDNFSlRxMllablRvYWFtZnZaSWthUlpJRX51ajc1cFpjQVFBQUFBJCQAAAAAAAAAAAEAAABW71JAwO7X2rriMgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPtZb1z7WW9cV'
-        # self.single_area_cral.cookie = "BDUSS=" + self.login.get_cookie()
+        # 测试用
+        # self.single_area_cral.cookie = 'BDUSS=mdXR3hiLVk1S0tQY2FmeDNFSlRxMllablRvYWFtZnZaSWthUlpJRX51ajc1cFpjQVFBQUFBJCQAAAAAAAAAAAEAAABW71JAwO7X2rriMgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPtZb1z7WW9cV'
+        self.single_area_cral.cookie = "BDUSS=" + self.login.get_cookie()
         # 循环输入地区，获取baiduIndex值
         for area_en, area_code in  self.area_code.items():
-            start_date = self.start_date
-            end_date = self.end_date
-            # 如果有missing date 加到前面
-            if self.missing_date_list:
-                start_date = self.missing_date_list[0]
-            # 开始请求
-            self.is_first = 1
-            for key_word, store_data in self.single_area_cral.get_data(
-                                    area_code, start_date, end_date):
-                # 存储的时间（self.run_date_list 是请求的时间，存储时间会缺失几个时间点）
-                true_time_list = MyDateTime.get_date_during(
-                    self.single_area_cral.true_start_date,
-                    self.single_area_cral.true_end_date)
-                # 缺失的日期存起来
-                self.store_lost_date(self.is_first, self.single_area_cral.true_end_date, end_date)
-                # 存储
-                self.store.store_badu_index(self.insert_sql, key_word,
-                    area_en, true_time_list, store_data)
+            # 把数年分割，不超过一年不割
+            for start_date,end_date in MyDateTime.split_over_one_year(self.start_date, self.end_date):
+                # 如果有missing date 加到前面
+                if self.missing_date_list:
+                    start_date = self.missing_date_list[0]
+                # 开始请求
+                self.is_first = 1
+                for key_word, store_data in self.single_area_cral.get_data(
+                                        area_code, start_date, end_date):
+                    # 存储的时间（self.run_date_list 是请求的时间，存储时间会缺失几个时间点）
+                    true_time_list = MyDateTime.get_date_during(
+                        self.single_area_cral.true_start_date,
+                        self.single_area_cral.true_end_date)
+                    # 缺失的日期存起来
+                    self.store_lost_date(self.is_first, self.single_area_cral.true_end_date, end_date)
+                    # 存储
+                    self.store.store_badu_index(self.insert_sql, key_word,
+                        area_en, true_time_list, store_data)
 
 
     def  store_lost_date(self, is_first, start_date, end_date):

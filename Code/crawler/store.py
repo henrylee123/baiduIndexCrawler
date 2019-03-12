@@ -29,14 +29,15 @@ class OracleStore():
         self.__cur.prepare(insert_sql)
         crawlerId = uuid.uuid1().hex.upper()
         param = []
-
+        # 【1,1,1,1】，【2,2,2,2】--> 1,2
         for date_, value in zip(date_list, value_list):
             if value == "":
                 value = 0
             elif not isinstance(value,int):
                 value = int(value.strip())
+        #  date_: 2018-12-12 -> 20181212
             param.append((uuid.uuid1().hex.upper(), crawlerId, areanm,
-                          kwnm, date_, value))
+                          kwnm, date_.replace('-',''), value))
 
         self.__cur.executemany(None, param)
         self.__conn.commit()
